@@ -84,8 +84,15 @@ class MessageSender:
 
     @staticmethod
     def get_agent():
-        import platform
-        return {
-            'sdkVersion': 'python/4.2.0',
-            'osPlatform': platform.platform() + " | " + platform.python_version()
-        }
+        return default_agent
+
+    def create_message(self, from_number, text, image_id=None, scheduled_date=None):
+        """
+        문자 메시지의 길이와 이미지 ID 존재 여부에 따라 SMS, LMS 또는 MMS 객체를 반환합니다.
+        """
+        if image_id:
+            return MMS(from_number, text, "MMS 자동 전환", file_id=image_id, scheduled_date=scheduled_date)
+        elif len(text) > 45:  # 텍스트 길이가 45자를 초과하면 LMS로 전환
+            return LMS(from_number, text, subject="LMS 자동 전환", scheduled_date=scheduled_date)
+        else:
+            return SMS(from_number, text, scheduled_date)

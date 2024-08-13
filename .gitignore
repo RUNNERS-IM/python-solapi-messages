@@ -16,7 +16,6 @@ downloads/
 eggs/
 .eggs/
 lib/
-!sense/solapi/lib
 lib64/
 parts/
 sdist/
@@ -328,6 +327,5 @@ solapi/config.ini
 
 .env
 .envs
-.ebextensions/03-branch-environments.config
 .scripts
 
