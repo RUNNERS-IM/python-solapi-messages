@@ -33,7 +33,7 @@ class SMS(Message):
 
 
 class LMS(Message):
-    def __init__(self, from_number, text, subject, scheduled_date=None):
+    def __init__(self, from_number, text, subject=None, scheduled_date=None):
         super().__init__(from_number, text, scheduled_date)
         self.subject = subject
 
@@ -42,16 +42,17 @@ class LMS(Message):
             "to": to_number,
             "from": self.from_number,
             "text": self.text,
-            "subject": self.subject,
             "type": "LMS"
         }
+        if self.subject:
+            message_dict["subject"] = self.subject
         if self.scheduled_date:
             message_dict["scheduledDate"] = self.scheduled_date.isoformat()
         return message_dict
 
 
 class MMS(LMS):
-    def __init__(self, from_number, text, subject, file_id, scheduled_date=None):
+    def __init__(self, from_number, text, subject=None, file_id=None, scheduled_date=None):
         super().__init__(from_number, text, subject, scheduled_date)
         self.file_id = file_id
 
@@ -86,13 +87,23 @@ class MessageSender:
     def get_agent():
         return default_agent
 
-    def create_message(self, from_number, text, image_id=None, scheduled_date=None):
+    def create_message(self, request):
         """
-        문자 메시지의 길이와 이미지 ID 존재 여부에 따라 SMS, LMS 또는 MMS 객체를 반환합니다.
+        요청 객체에서 필요한 정보를 추출하여 적절한 메시지 객체(SMS, LMS, MMS)를 생성합니다.
         """
+        from_number = request.get("from_number")
+        text = request.get("text")
+        subject = request.get("subject")
+        image_id = request.get("image_id")
+        scheduled_date = request.get("scheduled_date")
+
+        # image_id가 존재하면 MMS로 전환
         if image_id:
-            return MMS(from_number, text, "MMS 자동 전환", file_id=image_id, scheduled_date=scheduled_date)
-        elif len(text) > 45:  # 텍스트 길이가 45자를 초과하면 LMS로 전환
-            return LMS(from_number, text, subject="LMS 자동 전환", scheduled_date=scheduled_date)
+            return MMS(from_number, text, subject=subject, file_id=image_id, scheduled_date=scheduled_date)
+        # subject가 있거나 텍스트 길이가 45자를 초과하면 LMS로 전환
+        elif subject or len(text) > 45:
+            return LMS(from_number, text, subject=subject, scheduled_date=scheduled_date)
+        # 그 외에는 SMS로 전환
         else:
             return SMS(from_number, text, scheduled_date)
+
