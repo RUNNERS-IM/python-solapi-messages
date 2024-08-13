@@ -91,11 +91,11 @@ class MessageSender:
         """
         요청 객체에서 필요한 정보를 추출하여 적절한 메시지 객체(SMS, LMS, MMS)를 생성합니다.
         """
-        from_number = request.get("from_number")
-        text = request.get("text")
-        subject = request.get("subject")
-        image_id = request.get("image_id")
-        scheduled_date = request.get("scheduled_date")
+        from_number = request.data.get("from_number")
+        text = request.data.get("text")
+        subject = request.data.get("subject")
+        image_id = request.data.get("image_id")
+        scheduled_date = request.data.get("scheduled_date")
 
         # image_id가 존재하면 MMS로 전환
         if image_id:
