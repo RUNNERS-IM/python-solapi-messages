@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="solapi-sms",
-    version="0.1.3",
+    version="0.1.4",
     author="RUNNERS",
     author_email="dev@runners.im",
     description="A Python library for sending SMS using SolApi",
