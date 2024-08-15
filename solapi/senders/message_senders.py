@@ -1,9 +1,9 @@
 from typing import Dict, List
 
-from build.lib.solapi.sms.message import default_agent
+
 from solapi.kakao_talk.alim_talk import AlimTalkOptions, AlimTalkMessage
 from solapi.message import Message
-from solapi.request import post
+from solapi.request import post, default_agent
 from solapi.sms.lms import LMS
 from solapi.sms.mms import MMS
 

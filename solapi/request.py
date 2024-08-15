@@ -1,3 +1,4 @@
+import platform
 from typing import Dict, Any, Optional
 
 import requests
@@ -5,8 +6,14 @@ import requests
 from .auth import get_headers
 from .config import SolApiConfig
 
+default_agent = {
+    'sdkVersion': 'python/4.2.0',
+    'osPlatform': platform.platform() + " | " + platform.python_version()
+}
 
-def _make_request(config: SolApiConfig, method: str, path: str, data: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+
+def _make_request(config: SolApiConfig, method: str, path: str, data: Optional[Dict[str, Any]] = None,
+                  headers: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     url = config.get_url(path)
     headers = headers or {}
     headers.update(get_headers(config.api_key, config.secret_key))
