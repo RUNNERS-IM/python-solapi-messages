@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="python-solapi-messages",
-    version="0.1.3",
+    version="0.1.5",
     author="RUNNERS",
     author_email="dev@runners.im",
     description="A Python library for sending messages using SolApi",

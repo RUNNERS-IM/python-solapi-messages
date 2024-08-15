@@ -13,16 +13,16 @@ class MessageSender:
     def __init__(self, config):
         self.config = config
 
-    def send_one(self, message: Message, to_number: str) -> Dict:
+    def send_one(self, message: Message) -> Dict:
         data = {
-            "message": message.to_dict(to_number),
+            "message": message.to_dict(),
             "agent": self.get_agent()
         }
         return post(self.config, '/messages/v4/send', data)
 
-    def send_many(self, message: Message, to_numbers: List[str]) -> Dict:
+    def send_many(self, messages: List[Message]) -> Dict:
         data = {
-            "messages": [message.to_dict(number) for number in to_numbers],
+            "messages": [message.to_dict() for message in messages],
             "agent": self.get_agent()
         }
         return post(self.config, '/messages/v4/send-many', data)
@@ -31,24 +31,37 @@ class MessageSender:
     def get_agent():
         return default_agent
 
-    def create_message(self, request):
-        from_number = request.data.get('from_number')
-        text = request.data.get('text', '')
-        subject = request.data.get('subject')
-        image_id = request.data.get('image_id')
-        scheduled_date = request.data.get('scheduled_date')
+    def create_message(self, validated_data: Dict) -> Message:
+        from_number = validated_data['from_number']
+        to_number = validated_data['to_number']
+        scheduled_date = validated_data.get('scheduled_date')
 
-        if 'pf_id' in request.data and 'template_id' in request.data:
-            alimtalk_options = AlimTalkOptions(
-                pf_id=request.data['pf_id'],
-                template_id=request.data['template_id'],
-                disable_sms=request.data.get('disable_sms', False),
-                variables=request.data.get('variables', {})
+        if 'pf_id' in validated_data and 'template_id' in validated_data:
+            return AlimTalkMessage(
+                from_number,
+                to_number,
+                validated_data['pf_id'],
+                validated_data['template_id'],
+                validated_data.get('variables', {}),
+                validated_data.get('disable_sms', False),
+                scheduled_date
             )
-            return AlimTalkMessage(from_number, alimtalk_options, scheduled_date)
-        elif image_id:
-            return MMS(from_number, text, subject, image_id, scheduled_date)
-        elif subject or len(text) > 45:
-            return LMS(from_number, text, subject, scheduled_date)
+        elif 'image_id' in validated_data:
+            return MMS(
+                from_number,
+                to_number,
+                validated_data['text'],
+                validated_data['subject'],
+                validated_data['image_id'],
+                scheduled_date
+            )
+        elif 'subject' in validated_data or len(validated_data.get('text', '')) > 45:
+            return LMS(
+                from_number,
+                to_number,
+                validated_data['text'],
+                validated_data.get('subject', ''),
+                scheduled_date
+            )
         else:
-            return SMS(from_number, text, scheduled_date)
+            return SMS(from_number, to_number, validated_data['text'], scheduled_date)

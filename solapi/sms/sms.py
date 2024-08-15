@@ -1,16 +1,11 @@
 from typing import Dict
 
 from solapi.message import Message
+from solapi.sms.base import TextMessage
 
 
-class SMS(Message):
-    def to_dict(self, to_number: str) -> Dict:
-        message_dict = {
-            "to": to_number,
-            "from": self.from_number,
-            "text": self.text,
-            "type": "SMS"
-        }
-        if self.scheduled_date:
-            message_dict["scheduledDate"] = self.scheduled_date.isoformat()
+class SMS(TextMessage):
+    def to_dict(self) -> Dict:
+        message_dict = super().to_dict()
+        message_dict["type"] = "SMS"
         return message_dict

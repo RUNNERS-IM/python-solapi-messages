@@ -1,22 +1,15 @@
 from typing import Dict
 
-from solapi.message import Message
+from solapi.sms.base import TextMessage
 
 
-class LMS(Message):
-    def __init__(self, from_number: str, text: str, subject: str = None, scheduled_date: str = None):
-        super().__init__(from_number, text, scheduled_date)
+class LMS(TextMessage):
+    def __init__(self, from_number: str, to_number: str, text: str, subject: str, scheduled_date: Optional[str] = None):
+        super().__init__(from_number, to_number, text, scheduled_date)
         self.subject = subject
 
-    def to_dict(self, to_number: str) -> Dict:
-        message_dict = {
-            "to": to_number,
-            "from": self.from_number,
-            "text": self.text,
-            "type": "LMS"
-        }
-        if self.subject:
-            message_dict["subject"] = self.subject
-        if self.scheduled_date:
-            message_dict["scheduledDate"] = self.scheduled_date.isoformat()
+    def to_dict(self) -> Dict:
+        message_dict = super().to_dict()
+        message_dict["type"] = "LMS"
+        message_dict["subject"] = self.subject
         return message_dict

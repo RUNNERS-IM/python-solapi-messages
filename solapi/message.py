@@ -1,16 +1,19 @@
+from abc import ABC, abstractmethod
+from typing import Dict, Optional
 
-class Message:
-    def __init__(self, from_number: str, text: str, scheduled_date=None):
+
+class Message(ABC):
+    def __init__(self, from_number: str, to_number: str, scheduled_date: Optional[str] = None):
         self.from_number = from_number
-        self.text = text
+        self.to_number = to_number
         self.scheduled_date = scheduled_date
 
-    def to_dict(self, to_number: str) -> dict:
-        message_dict = {
-            "to": to_number,
-            "from": self.from_number,
-            "text": self.text
+    @abstractmethod
+    def to_dict(self) -> Dict:
+        base_dict = {
+            "to": self.to_number,
+            "from": self.from_number
         }
         if self.scheduled_date:
-            message_dict["scheduledDate"] = self.scheduled_date
-        return message_dict
+            base_dict["scheduledDate"] = self.scheduled_date
+        return base_dict
