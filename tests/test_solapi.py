@@ -75,12 +75,11 @@ class TestAlimTalk(unittest.TestCase):
             disable_sms=True,
             variables={"#{변수1}": "값1", "#{변수2}": "값2"}
         )
-        message: AlimTalkMessage = AlimTalkMessage(from_number="01012345678", text="Test AlimTalk", alimtalk_options=options)
+        message: AlimTalkMessage = AlimTalkMessage(from_number="01012345678", alimtalk_options=options)
         result: Dict[str, Any] = message.to_dict(to_number="01087654321")
         expected: Dict[str, Any] = {
             "to": "01087654321",
             "from": "01012345678",
-            "text": "Test AlimTalk",
             "type": "ATA",
             "kakaoOptions": {
                 "pfId": "TEST_PF_ID",
@@ -158,13 +157,16 @@ class TestMessageSender(unittest.TestCase):
         request: Mock = Mock()
         request.data = {
             "from_number": "01012345678",
-            "text": "Test AlimTalk",
             "pf_id": "TEST_PF_ID",
             "template_id": "TEST_TEMPLATE_ID",
             "variables": {"#{변수1}": "값1", "#{변수2}": "값2"}
         }
         message: AlimTalkMessage = self.sender.create_message(request)
         self.assertIsInstance(message, AlimTalkMessage)
+        self.assertEqual(message.from_number, "01012345678")
+        self.assertEqual(message.alimtalk_options.pf_id, "TEST_PF_ID")
+        self.assertEqual(message.alimtalk_options.template_id, "TEST_TEMPLATE_ID")
+        self.assertEqual(message.alimtalk_options.variables, {"#{변수1}": "값1", "#{변수2}": "값2"})
 
 
 if __name__ == '__main__':

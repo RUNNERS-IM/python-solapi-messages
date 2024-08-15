@@ -20,12 +20,13 @@ class AlimTalkOptions:
 
 
 class AlimTalkMessage(Message):
-    def __init__(self, from_number: str, text: str, alimtalk_options: AlimTalkOptions, scheduled_date: Optional[str] = None):
-        super().__init__(from_number, text, scheduled_date)
+    def __init__(self, from_number: str, alimtalk_options: AlimTalkOptions, scheduled_date: Optional[str] = None):
+        super().__init__(from_number, "", scheduled_date)  # text is empty string
         self.alimtalk_options = alimtalk_options
 
     def to_dict(self, to_number: str) -> Dict:
         message_dict = super().to_dict(to_number)
+        message_dict.pop('text', None)  # Remove 'text' field if it exists
         message_dict['type'] = 'ATA'
         message_dict['kakaoOptions'] = self.alimtalk_options.to_dict()
         return message_dict

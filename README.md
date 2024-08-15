@@ -61,7 +61,7 @@ print(result)
 from solapi.kakao_talk.alim_talk import AlimTalkOptions, AlimTalkMessage
 
 options = AlimTalkOptions(pf_id="PFID", template_id="TEMPLATE_ID", variables={"VAR1": "값1"})
-message = AlimTalkMessage(from_number="01012345678", text="알림톡 내용", alimtalk_options=options)
+message = AlimTalkMessage(from_number="01012345678", alimtalk_options=options)
 result = sender.send_one(message, to_number="01087654321")
 print(result)
 ```

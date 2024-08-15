@@ -6,6 +6,7 @@ from solapi.message import Message
 from solapi.request import post, default_agent
 from solapi.sms.lms import LMS
 from solapi.sms.mms import MMS
+from solapi.sms.sms import SMS
 
 
 class MessageSender:
@@ -31,25 +32,23 @@ class MessageSender:
         return default_agent
 
     def create_message(self, request):
-        from_number = request.data.get("from_number")
-        text = request.data.get("text")
-        subject = request.data.get("subject")
-        image_id = request.data.get("image_id")
-        scheduled_date = request.data.get("scheduled_date")
+        from_number = request.data.get('from_number')
+        text = request.data.get('text', '')
+        subject = request.data.get('subject')
+        image_id = request.data.get('image_id')
+        scheduled_date = request.data.get('scheduled_date')
 
-        # AlimTalk specific fields
-        pf_id = request.data.get("pf_id")
-        template_id = request.data.get("template_id")
-        variables = request.data.get("variables")
-        disable_sms = request.data.get("disable_sms", False)
-
-        if pf_id and template_id:
-            alimtalk_options = AlimTalkOptions(pf_id, template_id, disable_sms, variables)
-            return AlimTalkMessage(from_number, text, alimtalk_options, scheduled_date)
+        if 'pf_id' in request.data and 'template_id' in request.data:
+            alimtalk_options = AlimTalkOptions(
+                pf_id=request.data['pf_id'],
+                template_id=request.data['template_id'],
+                disable_sms=request.data.get('disable_sms', False),
+                variables=request.data.get('variables', {})
+            )
+            return AlimTalkMessage(from_number, alimtalk_options, scheduled_date)
         elif image_id:
-            return MMS(from_number, text, subject=subject, file_id=image_id, scheduled_date=scheduled_date)
-        elif subject or (text and len(text) > 45):
-            return LMS(from_number, text, subject=subject, scheduled_date=scheduled_date)
+            return MMS(from_number, text, subject, image_id, scheduled_date)
+        elif subject or len(text) > 45:
+            return LMS(from_number, text, subject, scheduled_date)
         else:
-            from solapi.sms.sms import SMS
             return SMS(from_number, text, scheduled_date)
